@@ -1,0 +1,17 @@
+Package: RHive
+Version: 0.1.0
+Date: 2017-11-16
+Title: Run R Code Through Apache Hive
+Authors@R: person("Clark", "Fitzgerald", role = c("aut", "cre"),
+                     email = "clarkfitzg@gmail.com")
+Author: Clark Fitzgerald [aut, cre]
+Maintainer: Clark Fitzgerald <clarkfitzg@gmail.com>
+Depends: R (>= 3.1.0)
+Suggests: roxygen2,
+    testthat
+Description: A (one paragraph) description of what
+  the package does and why it may be useful.
+License: MIT
+URL: https://github.com/clarkfitzg/RHive
+BugReports: https://github.com/clarkfitzg/RHive
+RoxygenNote: 6.0.1
