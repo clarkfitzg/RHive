@@ -10,8 +10,8 @@ check: $(PKG)
 	R CMD check $(PKG)
 
 clean:
-	rm vignettes/*.html
 	rm $(PKG)
+	rm vignettes/*.html
 
 test:
 	R CMD INSTALL .

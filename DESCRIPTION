@@ -11,7 +11,7 @@ Suggests: roxygen2,
     testthat
 Description: A (one paragraph) description of what
   the package does and why it may be useful.
-License: MIT
+License: MIT + file LICENSE
 URL: https://github.com/clarkfitzg/RHive
 BugReports: https://github.com/clarkfitzg/RHive
 RoxygenNote: 6.0.1
