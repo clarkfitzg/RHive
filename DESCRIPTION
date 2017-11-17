@@ -1,5 +1,5 @@
 Package: RHive
-Version: 0.1.0
+Version: 0.0.1
 Date: 2017-11-16
 Title: Run R Code Through Apache Hive
 Authors@R: person("Clark", "Fitzgerald", role = c("aut", "cre"),
