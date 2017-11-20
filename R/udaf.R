@@ -80,7 +80,7 @@ write_udaf_scripts = function(f
     , overwrite_script = FALSE
     , overwrite_table = FALSE
     , rows_per_chunk = 1e6L
-    , sep = "'\\t'"
+    , sep = "\\t"
     , verbose = FALSE
     , try = FALSE
     , tmptable = "tmp"
@@ -92,10 +92,22 @@ write_udaf_scripts = function(f
     gen_time = Sys.time()
     RHive_version = sessionInfo()$otherPkgs$RHive$Version
     output_table_definition = make_output_table_def(output_cols, output_classes)
-    f = paste0(capture.output(print.function(f)), collapse = "\n")
-
+    
+    # Pulls variables from parent environment
     sqlcode = whisker.render(sql_template)
-    Rcode = whisker.render(R_template)
+
+    # This just drops R code into an R script using mustache templating. An
+    # alternative way is to save all these objects into a binary file and
+    # send that file to the workers.
+    Rcode = whisker.render(R_template, data = list(verbose = verbose
+        , rows_per_chunk = rows_per_chunk
+        , cluster_by = deparse(cluster_by)
+        , sep = deparse(sep)
+        , input_cols = deparse(input_cols)
+        , input_classes = deparse(input_classes)
+        , try = try
+        , f = paste0(capture.output(print.function(f)), collapse = "\n")
+    ))
 
     writeLines(sqlcode, udaf_dot_sql)
     writeLines(Rcode, udaf_dot_R)

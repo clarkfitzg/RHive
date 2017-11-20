@@ -7,7 +7,7 @@
 write_udaf_scripts(f, cluster_by, input_table, input_cols, input_classes,
   output_table, output_cols, output_classes, base_name = "udaf",
   overwrite_script = FALSE, overwrite_table = FALSE,
-  rows_per_chunk = 1000000L, sep = "'\\\\t'", verbose = FALSE,
+  rows_per_chunk = 1000000L, sep = "\\\\t", verbose = FALSE,
   try = FALSE, tmptable = "tmp")
 }
 \arguments{
