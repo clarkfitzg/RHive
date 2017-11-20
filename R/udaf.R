@@ -26,8 +26,9 @@
 #'  \code{SELECT input_cols FROM input_table}. Can also contain more SQL,
 #'  such as \code{input_table WHERE col1 < 10}.
 #' @param input_cols input column names. See \code{col.names} in
-#' \code{\link[utils]{read.table}}.
-#' @param input_classes character vector passed on to
+#'  \code{\link[utils]{read.table}}.
+#' @param input_classes character vector of classes for columns. See
+#'  \code{colClasses} in \code{\link[utils]{read.table}}.
 #' @param output_table character name of table to \code{INSERT INTO
 #'  output_table}
 #' @param output_cols character vector of columns that f will output
@@ -36,8 +37,10 @@
 #'  If this is too large, say 1 billion, then the R process may fail
 #'  because it uses excessive memory.
 #' @param base_name character base name of script to write ie. foo.R and foo.sql
-#' @param overwrite logical write over any existing scripts with
+#' @param overwrite_script logical write over any existing scripts with
 #'  \code{base_name}?
+#' @param overwrite_table first call \code{DROP TABLE output_table}, and
+#'  then \code{CREATE TABLE output_table} with appropriate column types?
 #' @param sep character field separator string
 #' @param verbose logical log messages to \code{stderr} so that they can be
 #'  examined later via \code{$ yarn logs -applicationId <your app id>
@@ -52,9 +55,10 @@
 #' @export
 write_udaf_scripts = function(f, cluster_by
     , input_table, input_cols, input_classes
-    , output_table, output_cols
+    , output_table, output_cols, output_classes
     , base_name = "udaf"
-    , overwrite = FALSE
+    , overwrite_script = FALSE
+    , overwrite_table = FALSE
     , rows_per_chunk = 1e6L
     , sep = "\t"
     , verbose = FALSE
@@ -74,3 +78,58 @@ write_program = function(program, file)
     }
     sink()
 }
+
+sql_template = "
+
+{{#overwrite_table}}
+DROP TABLE fundamental_diagram
+;
+
+CREATE TABLE fundamental_diagram (
+  station INT
+  , n_total INT
+  , n_middle INT
+  , n_high INT
+  , left_slope DOUBLE
+  , left_slope_se DOUBLE
+  , mid_intercept DOUBLE
+  , mid_intercept_se DOUBLE
+  , mid_slope DOUBLE
+  , mid_slope_se DOUBLE
+  , right_slope DOUBLE
+  , right_slope_se DOUBLE
+  )
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\t'
+;
+{{/overwrite_table}}
+
+
+add FILE piecewise_fd.R
+;
+
+INSERT OVERWRITE TABLE fundamental_diagram
+SELECT
+TRANSFORM (station, flow2, occupancy2)
+USING "Rscript piecewise_fd.R"
+-- This AS seems redundant, since the reducers produce these.
+AS(station 
+  , n_total 
+  , n_middle 
+  , n_high 
+  , left_slope 
+  , left_slope_se 
+  , mid_intercept 
+  , mid_intercept_se 
+  , mid_slope 
+  , mid_slope_se 
+  , right_slope 
+  , right_slope_se 
+  )
+FROM (
+    SELECT station, flow2, occupancy2
+    FROM pems
+    CLUSTER BY station
+) AS tmp  -- Seems that it's necessary to add this alias here to avoid parsing error.
+;
+"
