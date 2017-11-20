@@ -1,3 +1,6 @@
+sql_template = system.file("inst/templates/udaf.sql", package = "RHive")
+
+
 #' Writes User Defined Aggregation Function
 #'
 #' Generates R and SQL scripts to call as user defined aggregation
@@ -49,6 +52,7 @@
 #' \code{f} on every group, and ignore those groups that fail. If \code{try
 #' = FALSE} then a failure on any group will cause the whole Hive job to
 #' fail.
+#' @param tmptable character name of temporary table in SQL query
 #' @return scripts character vector containing generated scripts
 #' @examples
 #' #write_udaf_scripts(...)
@@ -63,10 +67,12 @@ write_udaf_scripts = function(f, cluster_by
     , sep = "\t"
     , verbose = FALSE
     , try = FALSE
+    , tmptable = "tmp"
 ){
 
 
 }
+
 
 
 #' Write Program To File
@@ -79,57 +85,4 @@ write_program = function(program, file)
     sink()
 }
 
-sql_template = "
 
-{{#overwrite_table}}
-DROP TABLE fundamental_diagram
-;
-
-CREATE TABLE fundamental_diagram (
-  station INT
-  , n_total INT
-  , n_middle INT
-  , n_high INT
-  , left_slope DOUBLE
-  , left_slope_se DOUBLE
-  , mid_intercept DOUBLE
-  , mid_intercept_se DOUBLE
-  , mid_slope DOUBLE
-  , mid_slope_se DOUBLE
-  , right_slope DOUBLE
-  , right_slope_se DOUBLE
-  )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '\t'
-;
-{{/overwrite_table}}
-
-
-add FILE piecewise_fd.R
-;
-
-INSERT OVERWRITE TABLE fundamental_diagram
-SELECT
-TRANSFORM (station, flow2, occupancy2)
-USING "Rscript piecewise_fd.R"
--- This AS seems redundant, since the reducers produce these.
-AS(station 
-  , n_total 
-  , n_middle 
-  , n_high 
-  , left_slope 
-  , left_slope_se 
-  , mid_intercept 
-  , mid_intercept_se 
-  , mid_slope 
-  , mid_slope_se 
-  , right_slope 
-  , right_slope_se 
-  )
-FROM (
-    SELECT station, flow2, occupancy2
-    FROM pems
-    CLUSTER BY station
-) AS tmp  -- Seems that it's necessary to add this alias here to avoid parsing error.
-;
-"
