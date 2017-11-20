@@ -5,9 +5,9 @@
 DROP TABLE {{{output_table}}} 
 ;
 
-CREATE TABLE {{{output_table}}} ({{{#output_table_definition}}}{{{^first}}}, {{{/first}}}{{{ddl}}}
-    {{{/output_table_definition}}}
-)
+CREATE TABLE {{{output_table}}} (
+  {{{#output_table_definition}}}{{{^first}}}  , {{{/first}}}{{{ddl}}}
+{{{/output_table_definition}}})
 ROW FORMAT DELIMITED
 FIELDS TERMINATED BY {{{sep}}}
 ;
