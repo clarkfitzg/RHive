@@ -7,8 +7,8 @@
 write_udaf_scripts(f, cluster_by, input_table, input_cols, input_classes,
   output_table, output_cols, output_classes, base_name = "udaf",
   overwrite_script = FALSE, overwrite_table = FALSE,
-  rows_per_chunk = 1000000L, sep = "\\t", verbose = FALSE, try = FALSE,
-  tmptable = "tmp")
+  rows_per_chunk = 1000000L, sep = "'\\\\t'", verbose = FALSE,
+  try = FALSE, tmptable = "tmp")
 }
 \arguments{
 \item{f}{function which accepts a grouped data frame and returns a
@@ -52,7 +52,7 @@ because it uses excessive memory.}
 examined later via \code{$ yarn logs -applicationId <your app id>
 -log_files stderr}}
 
-\item{try}{logical If \code{try = TRUE} then it will try to call
+\item{try}{logical If \code{try = TRUE} then the script will attempt to call
 \code{f} on every group, and ignore those groups that fail. If \code{try
 = FALSE} then a failure on any group will cause the whole Hive job to
 fail.}

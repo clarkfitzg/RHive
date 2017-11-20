@@ -32,4 +32,5 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 
-*.sql
+udaf.sql
+udaf.R

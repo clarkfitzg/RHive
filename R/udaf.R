@@ -2,6 +2,11 @@ sql_template = readLines(
     system.file("templates/udaf.sql", package = "RHive")
 )
 
+R_template = readLines(
+    system.file("templates/udaf.R", package = "RHive")
+)
+
+
 
 #' Writes User Defined Aggregation Function
 #'
@@ -54,7 +59,7 @@ sql_template = readLines(
 #' @param verbose logical log messages to \code{stderr} so that they can be
 #'  examined later via \code{$ yarn logs -applicationId <your app id>
 #'  -log_files stderr}
-#' @param try logical If \code{try = TRUE} then it will try to call
+#' @param try logical If \code{try = TRUE} then the script will attempt to call
 #' \code{f} on every group, and ignore those groups that fail. If \code{try
 #' = FALSE} then a failure on any group will cause the whole Hive job to
 #' fail.
@@ -63,31 +68,39 @@ sql_template = readLines(
 #' @examples
 #' #write_udaf_scripts(...)
 #' @export
-write_udaf_scripts = function(f, cluster_by
-    , input_table, input_cols, input_classes
-    , output_table, output_cols, output_classes
+write_udaf_scripts = function(f
+    , cluster_by
+    , input_table
+    , input_cols
+    , input_classes
+    , output_table
+    , output_cols
+    , output_classes
     , base_name = "udaf"
     , overwrite_script = FALSE
     , overwrite_table = FALSE
     , rows_per_chunk = 1e6L
-    , sep = "\t"
+    , sep = "'\\t'"
     , verbose = FALSE
     , try = FALSE
     , tmptable = "tmp"
 ){
 
     #if(!overwrite_script && any(file.exists(
-    sql_file = paste0(base_name, ".sql")
+    udaf_dot_sql = paste0(base_name, ".sql")
     udaf_dot_R = paste0(base_name, ".R")
     gen_time = Sys.time()
     RHive_version = sessionInfo()$otherPkgs$RHive$Version
     output_table_definition = make_output_table_def(output_cols, output_classes)
+    f = capture.output(print.function(f))
 
-    sql = whisker.render(sql_template)
+    sqlcode = whisker.render(sql_template)
+    Rcode = whisker.render(R_template)
 
-    writeLines(sql, sql_file)
+    writeLines(sqlcode, udaf_dot_sql)
+    writeLines(Rcode, udaf_dot_R)
 
-    list(sql = sql)
+    list(sql = sqlcode, R = Rcode)
 }
 
 
