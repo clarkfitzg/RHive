@@ -92,7 +92,7 @@ write_udaf_scripts = function(f
     gen_time = Sys.time()
     RHive_version = sessionInfo()$otherPkgs$RHive$Version
     output_table_definition = make_output_table_def(output_cols, output_classes)
-    f = capture.output(print.function(f))
+    f = paste0(capture.output(print.function(f)), collapse = "\n")
 
     sqlcode = whisker.render(sql_template)
     Rcode = whisker.render(R_template)
