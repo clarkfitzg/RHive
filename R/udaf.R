@@ -1,4 +1,6 @@
-sql_template = system.file("inst/templates/udaf.sql", package = "RHive")
+sql_template = readLines(
+    system.file("templates/udaf.sql", package = "RHive")
+)
 
 
 #' Writes User Defined Aggregation Function
@@ -12,6 +14,9 @@ sql_template = system.file("inst/templates/udaf.sql", package = "RHive")
 #'
 #' This function is relatively low level. It provides the foundation for
 #' something more advanced that knows and uses the schema of the database.
+#' Defaults were chosen to do the least destructive things possible, so
+#' they don't overwrite existing files and data.
+#'
 #'
 #' Feedback: 
 #'
@@ -19,6 +24,7 @@ sql_template = system.file("inst/templates/udaf.sql", package = "RHive")
 #' packages? Ie. DBI package uses statement, lapply uses FUN
 #'
 #' Alternatively I could use caps to denote SQL things, ie. CLUSTER_BY
+#'
 #'
 #' @param f function which accepts a grouped data frame and returns a
 #'  data frame
@@ -70,9 +76,33 @@ write_udaf_scripts = function(f, cluster_by
     , tmptable = "tmp"
 ){
 
+    #if(!overwrite_script && any(file.exists(
+    sql_file = paste0(base_name, ".sql")
+    udaf_dot_R = paste0(base_name, ".R")
+    gen_time = Sys.time()
+    RHive_version = sessionInfo()$otherPkgs$RHive$Version
+    output_table_definition = make_output_table_def(output_cols, output_classes)
 
+    sql = whisker.render(sql_template)
+
+    writeLines(sql, sql_file)
+
+    list(sql = sql)
 }
 
+
+R_to_Hive = c(logical = "BOOLEAN", integer = "INT", numeric = "DOUBLE")
+
+
+make_output_table_def = function(output_cols, output_classes)
+{
+
+    x = paste(output_cols, R_to_Hive[output_classes])
+    ddl = whisker::iteratelist(x, value = "ddl")
+    ddl[[1]]$first = TRUE
+    ddl
+
+}
 
 
 #' Write Program To File

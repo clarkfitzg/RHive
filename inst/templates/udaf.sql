@@ -1,19 +1,17 @@
--- Automatically generated from R by RHive version {{{RHive_version}}}
 -- {{{gen_time}}}
-
+-- Automatically generated from R by RHive version {{{RHive_version}}}
 
 {{{#overwrite_table}}}
 DROP TABLE {{{output_table}}} 
 ;
 
-CREATE TABLE {{{output_table}}} (
-    {{{output_table_definition}}}
+CREATE TABLE {{{output_table}}} ({{{#output_table_definition}}}{{{^first}}}, {{{/first}}}{{{ddl}}}
+    {{{/output_table_definition}}}
 )
 ROW FORMAT DELIMITED
 FIELDS TERMINATED BY {{{sep}}}
 ;
 {{{/overwrite_table}}}
-
 add FILE {{{udaf_dot_R}}}
 ;
 

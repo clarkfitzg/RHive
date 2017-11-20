@@ -3,6 +3,10 @@ TESTFILES!= ls tests/testthat/test*.R
 PKG=RHive_0.0.1.tar.gz
 
 
+docs:
+	R -e "roxygen2::roxygenize()"
+	R CMD INSTALL .
+
 $(PKG): $(RFILES) $(TESTFILES)
 	R CMD build .
 
@@ -16,6 +20,3 @@ clean:
 test:
 	R CMD INSTALL .
 	cd tests && Rscript testthat.R && cd ..
-
-docs:
-	R -e "roxygen2::roxygenize()"

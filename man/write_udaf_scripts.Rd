@@ -4,20 +4,29 @@
 \alias{write_udaf_scripts}
 \title{Writes User Defined Aggregation Function}
 \usage{
-write_udaf_scripts(f, cluster_by, input_table, input_cols, output_table,
-  output_cols, base_name = "udaf", sep = "\\t")
+write_udaf_scripts(f, cluster_by, input_table, input_cols, input_classes,
+  output_table, output_cols, output_classes, base_name = "udaf",
+  overwrite_script = FALSE, overwrite_table = FALSE,
+  rows_per_chunk = 1000000L, sep = "\\t", verbose = FALSE, try = FALSE,
+  tmptable = "tmp")
 }
 \arguments{
 \item{f}{function which accepts a grouped data frame and returns a
 data frame}
 
-\item{cluster_by}{character name of column to \code{CLUSTER BY}}
+\item{cluster_by}{character name of column to \code{CLUSTER BY}, ie.
+split the main table based on this column and apply \code{f} to each
+group}
 
 \item{input_table}{character name of table to be transformed, ie.
 \code{SELECT input_cols FROM input_table}. Can also contain more SQL,
 such as \code{input_table WHERE col1 < 10}.}
 
-\item{input_cols}{character vector of input columns to f}
+\item{input_cols}{input column names. See \code{col.names} in
+\code{\link[utils]{read.table}}.}
+
+\item{input_classes}{character vector of classes for columns. See
+\code{colClasses} in \code{\link[utils]{read.table}}.}
 
 \item{output_table}{character name of table to \code{INSERT INTO
 output_table}}
@@ -26,7 +35,29 @@ output_table}}
 
 \item{base_name}{character base name of script to write ie. foo.R and foo.sql}
 
-\item{sep}{field separator string}
+\item{overwrite_script}{logical write over any existing scripts with
+\code{base_name}?}
+
+\item{overwrite_table}{first call \code{DROP TABLE output_table}, and
+then \code{CREATE TABLE output_table} with appropriate column types?}
+
+\item{rows_per_chunk}{integer number of rows to process in each chunk.
+If this is too small, say 10, then the generated script will be slow.
+If this is too large, say 1 billion, then the R process may fail
+because it uses excessive memory.}
+
+\item{sep}{character field separator string}
+
+\item{verbose}{logical log messages to \code{stderr} so that they can be
+examined later via \code{$ yarn logs -applicationId <your app id>
+-log_files stderr}}
+
+\item{try}{logical If \code{try = TRUE} then it will try to call
+\code{f} on every group, and ignore those groups that fail. If \code{try
+= FALSE} then a failure on any group will cause the whole Hive job to
+fail.}
+
+\item{tmptable}{character name of temporary table in SQL query}
 }
 \value{
 scripts character vector containing generated scripts
@@ -36,6 +67,15 @@ Generates R and SQL scripts to call as user defined aggregation
 functions in Hive
 }
 \details{
+This approach splits the data based on the value of the column
+\code{cluster_by}. Each group of split data must be small enough to fit
+in memory of the R process that runs it.
+
+This function is relatively low level. It provides the foundation for
+something more advanced that knows and uses the schema of the database.
+Defaults were chosen to do the least destructive things possible, so
+they don't overwrite existing files and data.
+
 Feedback:
 
 Do I attempt to have consistency with similar funcs /
@@ -44,5 +84,5 @@ packages? Ie. DBI package uses statement, lapply uses FUN
 Alternatively I could use caps to denote SQL things, ie. CLUSTER_BY
 }
 \examples{
-write_udaf_scripts(
+#write_udaf_scripts(...)
 }
