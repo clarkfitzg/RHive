@@ -21,7 +21,7 @@ write_udaf_scripts(f = testfunc
     , cluster_by = "station"
     , input_table = "pems"
     , input_cols = c("station", "flow2", "occ2")
-    , input_classes = c("integer", "integer", "numeric")
+    , input_classes = c("integer", "integer", "numeric", "character")
     , output_table = "fundamental_diagram"
     , output_cols = c("station", "n_total", "slope")
     , output_classes = c("integer", "integer", "numeric")
@@ -30,4 +30,17 @@ write_udaf_scripts(f = testfunc
     , try = TRUE
 )
 
+```
+
+
+Some ideas talking with the code review group:
+
+```
+input_table 
+data
+data_in
+SELECT_FROM
+select_from
+
+sql_in = sql_builder(SELECT = c("col_a", "col_b")...)
 ```
