@@ -6,9 +6,9 @@
 \usage{
 write_udaf_scripts(f, cluster_by, input_table, input_cols, input_classes,
   output_table, output_cols, output_classes, base_name = "udaf",
-  overwrite_script = FALSE, overwrite_table = FALSE,
-  rows_per_chunk = 1000000L, sep = "\\\\t", verbose = FALSE,
-  try = FALSE, tmptable = "tmp")
+  include_script = NULL, overwrite_script = FALSE,
+  overwrite_table = FALSE, rows_per_chunk = 1000000L, sep = "'\\\\t'",
+  verbose = FALSE, try = FALSE, tmptable = "tmp")
 }
 \arguments{
 \item{f}{function which accepts a grouped data frame and returns a
@@ -34,6 +34,9 @@ output_table}}
 \item{output_cols}{character vector of columns that f will output}
 
 \item{base_name}{character base name of script to write ie. foo.R and foo.sql}
+
+\item{include_script}{character name of an R script to include in the
+generated script. This may contain supporting functions, for example.}
 
 \item{overwrite_script}{logical write over any existing scripts with
 \code{base_name}?}

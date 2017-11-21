@@ -51,6 +51,8 @@ R_template = readLines(
 #'  If this is too large, say 1 billion, then the R process may fail
 #'  because it uses excessive memory.
 #' @param base_name character base name of script to write ie. foo.R and foo.sql
+#' @param include_script character name of an R script to include in the
+#'  generated script. This may contain supporting functions, for example.
 #' @param overwrite_script logical write over any existing scripts with
 #'  \code{base_name}?
 #' @param overwrite_table first call \code{DROP TABLE output_table}, and
@@ -77,10 +79,11 @@ write_udaf_scripts = function(f
     , output_cols
     , output_classes
     , base_name = "udaf"
+    , include_script = NULL
     , overwrite_script = FALSE
     , overwrite_table = FALSE
     , rows_per_chunk = 1e6L
-    , sep = "\\t"
+    , sep = "'\\t'"             # sep is a little tricky
     , verbose = FALSE
     , try = FALSE
     , tmptable = "tmp"
@@ -96,13 +99,18 @@ write_udaf_scripts = function(f
     # Pulls variables from parent environment
     sqlcode = whisker.render(sql_template)
 
+    if(!is.null(include_script)){
+        include_script = paste0(readLines(include_script), collapse = "\n")
+    }
+
     # This just drops R code into an R script using mustache templating. An
     # alternative way is to save all these objects into a binary file and
     # send that file to the workers.
-    Rcode = whisker.render(R_template, data = list(verbose = verbose
+    Rcode = whisker.render(R_template, data = list(include_script = include_script
+        , verbose = verbose
         , rows_per_chunk = rows_per_chunk
         , cluster_by = deparse(cluster_by)
-        , sep = deparse(sep)
+        , sep = sep
         , input_cols = deparse(input_cols)
         , input_classes = deparse(input_classes)
         , try = try
