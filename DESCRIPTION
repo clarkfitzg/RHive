@@ -9,9 +9,11 @@ Maintainer: Clark Fitzgerald <clarkfitzg@gmail.com>
 Depends: R (>= 3.1.0), whisker
 Suggests: roxygen2,
     testthat
-Description: A (one paragraph) description of what
-  the package does and why it may be useful.
+Description: RHive facilitates writing R code to run on data stored
+    in Apache Hive.
+It requires a working Hive cluster with R installed
+    on each node.
 License: MIT + file LICENSE
 URL: https://github.com/clarkfitzg/RHive
-BugReports: https://github.com/clarkfitzg/RHive
+BugReports: https://github.com/clarkfitzg/RHive/issues
 RoxygenNote: 6.0.1
