@@ -115,6 +115,8 @@ write_udaf_scripts = function(f
         , input_classes = deparse(input_classes)
         , try = try
         , f = paste0(capture.output(print.function(f)), collapse = "\n")
+        , gen_time = gen_time
+        , RHive_version = RHive_version
     ))
 
     writeLines(sqlcode, udaf_dot_sql)
